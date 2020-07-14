@@ -3,14 +3,15 @@
 FROM ruby:2.6.5-alpine as Builder
 RUN apk add --update --no-cache \
     build-base \
-    postgresql-dev \
+    sqlite3 \
     git \
     imagemagick \
     nodejs-current \
     yarn \
     tzdata
-
+RUN gem install sqlite3 -v '1.4.2
 WORKDIR /app
+
 
 # Install gems
 #RUN gem install bundler
