@@ -1,86 +1,28 @@
-######################
-# Stage: Builder
-
+# imagen base
 FROM ubuntu:14.04 AS base
-FROM ruby:2.6.5-alpine as Builder
-RUN apk add --update --no-cache \
-    build-base \
-    sqlite \
-    git \
-    imagemagick \
-    nodejs-current \
-    yarn \
-    tzdata
-    
-WORKDIR /app
 
-RUN sudo apt-get install libsqlite3-dev
+# Instalar cosas apt-get 
+RUN sudo apt-get update \
+&& apt-get install -y curl  \
+&& curl -sL deb.nodesource.com/setup_10.x | bash - \
+&& apt-get install -y nodejs \
+&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+&& echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 
-# Install gems
-ADD Gemfile* /app/
-RUN bundle config --global frozen 1 \
- && bundle install --without development test -j4 --retry 3 \
- # Remove unneeded files (cached *.gem, *.o, *.c)
- && rm -rf /usr/local/bundle/cache/*.gem \
- && find /usr/local/bundle/gems/ -name "*.c" -delete \
- && find /usr/local/bundle/gems/ -name "*.o" -delete
+&& sudo apt-get update
+&& sudo apt-get install git-core zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev nodejs yarn
 
-# Install yarn packages
-COPY package.json yarn.lock /app/
-RUN yarn install
+&& mkdir app \
+&& apt-get remove -y curl \
+&& rm -rf /var/lib/apt/lists/*
 
-# Add the Rails app
-ADD . /app
-
-# Precompile assets
-RUN RAILS_ENV=production SECRET_KEY_BASE=foo bundle exec rake assets:precompile
-
-# Remove folders not needed in resulting image
-RUN rm -rf node_modules tmp/cache app/assets vendor/assets lib/assets spec
-
-###############################
-# Stage wkhtmltopdf
-FROM madnight/docker-alpine-wkhtmltopdf as wkhtmltopdf
-
-###############################
-# Stage Final
-FROM ruby:2.5.1-alpine
-LABEL maintainer="mail@georg-ledermann.de"
-
-# Add Alpine packages
-RUN apk add --update --no-cache \
-    postgresql-client \
-    imagemagick \
-    tzdata \
-    file \
-    # needed for wkhtmltopdf
-    libcrypto1.0 libssl1.0 \
-    ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family
-
-# Copy wkhtmltopdf from former build stage
-COPY --from=wkhtmltopdf /bin/wkhtmltopdf /bin/
-
-# Add user
-RUN addgroup -g 1000 -S app \
- && adduser -u 1000 -S app -G app
-USER app
-
-# Copy app with gems from former build stage
-COPY --from=Builder /usr/local/bundle/ /usr/local/bundle/
-COPY --from=Builder --chown=app:app /app /app
-
-# Set Rails env
-ENV RAILS_LOG_TO_STDOUT true
-ENV RAILS_SERVE_STATIC_FILES true
-ENV EXECJS_RUNTIME Disabled
+# Copia el directorio actual en el directorio del contenedor (/app)
+COPY . /app
 
 WORKDIR /app
 
-# Expose Puma port
-EXPOSE 3000
+#RUN npm install && ng build --prod
 
-# Save timestamp of image building
-RUN date -u > BUILD_TIME
 
-# Start up
-CMD ["docker/startup.sh"]
+FROM nginx:1.15 AS final
+COPY --from=base /app/dist/rtsketch /usr/share/nginx/html/
