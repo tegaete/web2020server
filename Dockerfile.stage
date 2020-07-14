@@ -20,7 +20,9 @@ COPY . /app
 
 WORKDIR /app
 
-#RUN npm install && ng build --prod
+RUN rake db:create
+RUN rake db:migrate
+RUN rake db:seed
 
 
 FROM nginx:1.15 AS final
