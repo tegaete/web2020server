@@ -1,5 +1,7 @@
 ######################
 # Stage: Builder
+
+FROM ubuntu:14.04 AS base
 FROM ruby:2.6.5-alpine as Builder
 RUN apk add --update --no-cache \
     build-base \
@@ -9,7 +11,7 @@ RUN apk add --update --no-cache \
     nodejs-current \
     yarn \
     tzdata
-RUN gem install sqlite3 -v 1.4.2
+RUN apt-get install libsqlite3-dev
 WORKDIR /app
 
 
