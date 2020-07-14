@@ -1,30 +1,11 @@
-# imagen base
-FROM ubuntu:14.04 AS base
-
-# Instalar cosas apt-get 
-RUN sudo apt-get update \
-&& apt-get install -y curl  \
-&& curl -sL deb.nodesource.com/setup_10.x | bash - \
-&& apt-get install -y nodejs \
-&& curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - \
-&& echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list \
-&& npm install -g yarn  \
-&& sudo apt-get install git-core zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev nodejs -y \
-
-&& mkdir app \
-&& apt-get remove -y curl \
-&& rm -rf /var/lib/apt/lists/*
-
-# Copia el directorio actual en el directorio del contenedor (/app)
+FROM ruby:2.6.5
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
 COPY . /app
 
 WORKDIR /app
-RUN echo ruby -v
 RUN bundle install
 RUN rake db:create
 RUN rake db:migrate
 RUN rake db:seed
 
-
-FROM nginx:1.15 AS final
-COPY --from=base /app/dist/rtsketch /usr/share/nginx/html/
+ENTRYPOINT ["rails", "s", "-b", "0.0.0.0"]
