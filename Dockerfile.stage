@@ -9,7 +9,7 @@ RUN apk add --update --no-cache \
     nodejs-current \
     yarn \
     tzdata
-RUN gem install sqlite3 -v '1.4.2
+RUN gem install sqlite3 -v 1.4.2
 WORKDIR /app
 
 
