@@ -20,4 +20,4 @@ steps:
     - 'managed'
     - '--allow-unauthenticated'
     - '--port'
-    - '80'
+    - '3000'
