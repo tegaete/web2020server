@@ -2,6 +2,13 @@ class Api::V1::GamesController < ApplicationController
   before_action :set_game, only: [:show, :update, :destroy, :get_first_user, :next_turn, :get_active_user]
 
 $drawings = [];
+$active_user  = User.first;
+$turn = 0;
+
+def init
+     $active_user  = User.first;
+     $turn = 0;
+end
 
   def draw
        #params[:userid, :xcoord, :xdist, :ycoord, :ydist, :color]
@@ -33,8 +40,6 @@ end
     render json: @games
   end
 
-$active_user  = User.first;
-$turn = 0;
 
 def get_first_user
      @users = @game.users;
