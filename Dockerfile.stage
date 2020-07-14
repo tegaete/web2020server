@@ -1,7 +1,6 @@
 ######################
 # Stage: Builder
 FROM ruby:2.6.5-alpine as Builder
-RUN apt-get install libsqlite3-dev
 RUN apk add --update --no-cache \
     build-base \
     postgresql-dev \
