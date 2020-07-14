@@ -19,7 +19,8 @@ RUN sudo apt-get update \
 COPY . /app
 
 WORKDIR /app
-
+RUN echo ruby -v
+RUN bundle install
 RUN rake db:create
 RUN rake db:migrate
 RUN rake db:seed
