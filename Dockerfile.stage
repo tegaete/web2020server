@@ -1,6 +1,6 @@
 ######################
 # Stage: Builder
-FROM ruby:2.5.1-alpine as Builder
+FROM ruby:2.6.5-alpine as Builder
 
 RUN apk add --update --no-cache \
     build-base \
@@ -14,7 +14,7 @@ RUN apk add --update --no-cache \
 WORKDIR /app
 
 # Install gems
-RUN gem install bundler
+#RUN gem install bundler
 ADD Gemfile* /app/
 RUN bundle config --global frozen 1 \
  && bundle install --without development test -j4 --retry 3 \
