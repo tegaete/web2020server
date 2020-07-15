@@ -47,3 +47,4 @@ end
 
 
 gem 'rack-cors'
+gem 'bcrypt'

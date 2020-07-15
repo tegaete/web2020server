@@ -27,7 +27,9 @@ ActiveRecord::Schema.define(version: 2020_07_13_042310) do
 
   create_table "users", force: :cascade do |t|
     t.integer "game_id"
-    t.string "cookie"
+    t.string "username"
+    t.string "password"
+    t.string "session_cookie"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["game_id"], name: "index_users_on_game_id"
