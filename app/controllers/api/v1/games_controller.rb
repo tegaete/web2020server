@@ -12,7 +12,7 @@ end
 
   def draw
        #params[:userid, :xcoord, :xdist, :ycoord, :ydist, :color]
-     #  if ($active_user.id == params[:uid].to_i)
+     #  if ($active_user.session_cookie == params[:session_cookie])
      if (1==1)
           line = [params[:xcoord], params[:ycoord], params[ :color]]
             $drawings.append("line": line)

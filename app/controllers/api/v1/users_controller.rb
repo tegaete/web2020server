@@ -4,12 +4,12 @@ class Api::V1::UsersController < ApplicationController
 require 'securerandom'
 
 def login
-     @u = User.find_by(username: user_params[:username])
+     @u = User.find_by!(username: user_params[:username])
      if(@u.password == user_params[:password])
           cookie_params = {session_cookie: SecureRandom.hex }
           @u.update(cookie_params)
 
-          render json: @u
+          render json: {data: 'ok', cookie: cookie_params[:session_cookie]}
           return;
      end
      render json: {data: 'fallo de autenticacion'}
@@ -46,7 +46,7 @@ end
   # POST /users
   def create
        g = Game.all[user_params[:game].to_i-1]
-       creation_params = {game: g, session_cookie: '', password: user_params[:password], username: user_params[:username]}
+       creation_params = {game: g, session_cookie: nil, password: user_params[:password], username: user_params[:username], language: user_params[:lang], email: user_params[:email]}
 
     @user = User.new(creation_params)
 
@@ -80,6 +80,6 @@ end
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.permit(:session_cookie, :game, :password, :username)
+      params.permit(:session_cookie, :game, :password, :username, :lang, :email)
     end
 end
