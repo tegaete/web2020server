@@ -10,3 +10,5 @@ random_string = SecureRandom.hex
 Game.create(game_desc: random_string)
 random_string = SecureRandom.hex
 Game.create(game_desc: random_string)
+
+User.create(game: Game.all[1], username: 'game2')

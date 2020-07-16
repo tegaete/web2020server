@@ -7,8 +7,10 @@ Rails.application.routes.draw do
   namespace :v1 do
        resources :games
        resources :users
-       get 'games/:id/first', to: 'games#get_first_user', :defaults => { :format => 'json' }
+       get 'games/:id/new_round', to: 'games#start_new_round', :defaults => { :format => 'json' }
+       post 'games/:id/new_round', to: 'games#start_new_round', :defaults => { :format => 'json' }
        get 'games/:id/next', to: 'games#next_turn', :defaults => { :format => 'json' }
+       post 'games/:id/next', to: 'games#next_turn', :defaults => { :format => 'json' }
        post 'games/:id/active', to: 'games#get_active_user', :defaults => { :format => 'json' }
        get 'games/:id/draw', to: 'games#draw', :defaults => { :format => 'json' }
        post 'games/:id/draw', to: 'games#draw', :defaults => { :format => 'json' }
@@ -19,6 +21,12 @@ Rails.application.routes.draw do
        post'users/:id/get_session', to: 'users#return_session_data', :defaults => { :format => 'json' }
        post 'login', to: 'users#login', :defaults => { :format => 'json' }
        post 'logout', to: 'users#logout', :defaults => { :format => 'json' }
+       post 'games/:id/current', to: 'games#current_users', :defaults => { :format => 'json' }
+       post 'users/:id/join', to: 'users#join_game', :defaults => { :format => 'json' }
+       post 'users/:id/leave', to: 'users#leave_game', :defaults => { :format => 'json' }
+
+
+
 
       # get 'games/:id/initiate', to: 'games#get_active_user', :defaults => { :format => 'json' }
 

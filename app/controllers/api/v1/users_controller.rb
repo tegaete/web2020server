@@ -1,12 +1,12 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy, :return_session_data]
+  before_action :set_user, only: [:show, :update, :destroy, :return_session_data, :join_game, :leave_game]
 
 require 'securerandom'
 
 def login
      @u = User.find_by!(username: user_params[:username])
      if(@u.password == user_params[:password])
-          cookie_params = {session_cookie: SecureRandom.hex }
+          cookie_params = {session_cookie: SecureRandom.hex, game: Game.first }
           @u.update(cookie_params)
 
           render json: {data: 'ok', cookie: cookie_params[:session_cookie]}
@@ -18,14 +18,25 @@ end
 
 def logout
      @u = User.find_by(session_cookie: user_params[:session_cookie])
-     cookie_params = {session_cookie: '' }
+     cookie_params = {session_cookie: nil, game: nil  }
      if(@u != nil)
           @u.update(cookie_params)
-          render json: {data: 'sesion finalizada'}
+          render json: {data: 'ok', exp: 'sesion finalizada'}
      else
           render json: {data: '@u no existe'}
-       # code
  end
+end
+
+def join_game
+     join_params = {game: Game.find(user_params[:game]) }
+     @user.update(join_params)
+     render json: {data: 'ok', exp: 'ingresaste al tablero ' + user_params[:game] }
+end
+
+def leave_game
+     leave_params = {game: nil }
+     @user.update(leave_params)
+     render json: {data: 'ok', exp: 'saliste del juego'}
 end
 
   # GET /users
@@ -51,8 +62,8 @@ end
     @user = User.new(creation_params)
 
     if @user.save
-         session[:current_user_id] = @user.id
-      render json: @user, status: :created, location: @user
+         #session[:current_user_id] = @user.id
+      render json: {data: 'ok', exp: 'saliste del juego', user: @user}, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
     end

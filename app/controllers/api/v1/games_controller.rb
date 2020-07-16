@@ -1,5 +1,5 @@
 class Api::V1::GamesController < ApplicationController
-  before_action :set_game, only: [:show, :update, :destroy, :get_first_user, :next_turn, :get_active_user]
+  before_action :set_game, only: [:show, :update, :destroy, :get_first_user, :next_turn, :get_active_user, :current_users, :active_game_users]
 
 $drawings = [];
 $active_user  = User.first;
@@ -10,21 +10,27 @@ def init
      $turn = 0;
 end
 
-  def draw
-       #params[:userid, :xcoord, :xdist, :ycoord, :ydist, :color]
-     #  if ($active_user.session_cookie == params[:session_cookie])
+def current_users
+     temp = []
+     active_game_users().each{|n| temp.append(n.username)}
+     render json: temp
+end
+
+def draw
+  #params[:userid, :xcoord, :xdist, :ycoord, :ydist, :color]
+#  if ($active_user.session_cookie == params[:session_cookie])
      if (1==1)
           line = [params[:xcoord], params[:ycoord], params[ :color]]
             $drawings.append("line": line)
-
            render json: {data: 'ok' }#, 'drawings': $drawings}
      else
           render json: {data: 'not allowed', active_user_id: $active_user.id, your_cookie: params[:cookie]}
      end
-  end
+end
 
 def get_request_read_drawings
       render json: $drawings
+     # $drawings.shift($drawings.count/50)
 end
 
 def clear
@@ -33,37 +39,43 @@ def clear
      #end
 end
 
-  # GET /games
-  def index
-    @games = Game.all
-
-    render json: @games
-  end
-
-
-def get_first_user
-     @users = @game.users;
-     $active_user = @users.first;
-      render json: $active_user
-      $turn = 0
+def active_game_users
+     return @game.users.where.not(session_cookie: [nil, ""])
 end
 
-def get_active_user
-     users = @game.users;
-     $active_user = users[($turn.to_i + 0 )%@game.users.count()];
-     render json: $active_user;
-end
-
-def set_active_user(turn)
-     users = @game.users;
-     c_users = users.count();
-     $active_user = users[(turn.to_i + 0 )%c_users];
+def start_new_round
+     $turn = 0;
+     @active_users = active_game_users();
+     $active_user = @active_users[$turn];
+     render json: {data: 'round started'}
 end
 
 def next_turn
-     $turn= $turn.to_i + 1;
+     $turn = $turn.to_i + 1;
      set_active_user($turn);
       render json: $active_user
+end
+
+def set_active_user(turn)
+     users = active_game_users();
+     $active_user = users[turn];
+end
+
+def get_active_user
+     render json: $active_user;
+end
+
+
+
+
+
+
+
+#rails methods
+# GET /games
+def index
+  @games = Game.all
+  render json: @games
 end
 
   # GET /games/1
